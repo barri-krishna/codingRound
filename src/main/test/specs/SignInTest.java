@@ -1,51 +1,55 @@
-import com.sun.javafx.PlatformUtil;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+package specs;
+
+import java.util.Map;
+
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import utils.AppConstants;
+import utils.ApplicationLibrary;
+import utils.ExcelDataHandler;
+import views.LoginScreen;
 
 public class SignInTest {
 
-    WebDriver driver = new ChromeDriver();
+	protected ApplicationLibrary appLib;
+	protected LoginScreen loginScreen;
+	protected Map<String, String> exceldata;
 
-    @Test
-    public void shouldThrowAnErrorIfSignInDetailsAreMissing() {
+	@BeforeTest
+	public void setBaseURL() {
+		appLib = new ApplicationLibrary();
+		exceldata = ExcelDataHandler.getTestData(this.getClass().getSimpleName());
+		appLib.invokeBrowser(AppConstants.CHROME);
+		appLib.getDriver().get(AppConstants.URL);
+	}
 
-        setDriverPath();
+	@Test
+	public void shouldThrowAnErrorIfSignInDetailsAreMissing() {
 
-        driver.get("https://www.cleartrip.com/");
-        waitFor(2000);
+		// Initializing Hotels Screen Page Objects
+		loginScreen = PageFactory.initElements(appLib.getDriver(), LoginScreen.class);
 
-        driver.findElement(By.linkText("Your trips")).click();
-        driver.findElement(By.id("SignIn")).click();
+		// Clicking on Your trips link
+		appLib.clickElement(loginScreen.lnkYourTrips, "Clicking on Your trips Link");
 
-        driver.findElement(By.id("signInButton")).click();
+		// Clicking on Sign In button
+		appLib.clickElement(loginScreen.btnSignIn, "Clicking on Sign In button");
+		
+		// Clicking on Sign In button in pop-up
+		switchToFrame(loginScreen.loginFrame);
+		appLib.clickElement(loginScreen.btnSignInOnPopup, "Clicking on Sign In button in popup");
 
-        String errors1 = driver.findElement(By.id("errors1")).getText();
-        Assert.assertTrue(errors1.contains("There were errors in your submission"));
-        driver.quit();
-    }
+		// Validating Error Message
+		Assert.assertTrue(loginScreen.txtErrorMessage.getText().contains(exceldata.get("ErrorMsg")));
 
-    private void waitFor(int durationInMilliSeconds) {
-        try {
-            Thread.sleep(durationInMilliSeconds);
-        } catch (InterruptedException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
-    }
-
-
+	}
+	
+	public void switchToFrame(WebElement frame) {
+		appLib.waitforElementVisible(frame);
+		appLib.getDriver().switchTo().frame(frame);
+	}
 }

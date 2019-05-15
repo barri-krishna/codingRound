@@ -1,53 +1,63 @@
-import com.sun.javafx.PlatformUtil;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.FindBy;
+package specs;
+
+import java.util.Map;
+
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
+import org.testng.Assert;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import utils.AppConstants;
+import utils.ApplicationLibrary;
+import utils.ExcelDataHandler;
+import views.HotelsScreen;
 
 public class HotelBookingTest {
 
-    WebDriver driver = new ChromeDriver();
+	protected ApplicationLibrary appLib;
+	protected HotelsScreen hotelsScreen;
+	protected Map<String, String> exceldata;
 
-    @FindBy(linkText = "Hotels")
-    private WebElement hotelLink;
+	@BeforeTest
+	public void setBaseURL() {
+		appLib = new ApplicationLibrary();
+		exceldata = ExcelDataHandler.getTestData(this.getClass().getSimpleName());
+		appLib.invokeBrowser(AppConstants.CHROME);
+		appLib.getDriver().get(AppConstants.URL);
+	}
 
-    @FindBy(id = "Tags")
-    private WebElement localityTextBox;
+	@Test
+	public void shouldBeAbleToSearchForHotels() {
 
-    @FindBy(id = "SearchHotelsButton")
-    private WebElement searchButton;
+		// Initializing Hotels Screen Page Objects
+		hotelsScreen = PageFactory.initElements(appLib.getDriver(), HotelsScreen.class);
 
-    @FindBy(id = "travellersOnhome")
-    private WebElement travellerSelection;
+		// Navigating to Hotels Search Screen
+		appLib.clickElement(hotelsScreen.hotelLink, "Clicking on Hotels Tab");
 
-    @Test
-    public void shouldBeAbleToSearchForHotels() {
-        setDriverPath();
+		// Entering From location
+		appLib.setValue(hotelsScreen.txtLocality, exceldata.get("HotelLocation"));
 
-        driver.get("https://www.cleartrip.com/");
-        hotelLink.click();
+		// Picking first value from suggestions
+		appLib.clickElement(hotelsScreen.localitySuggestions, "Picking first locality Suggestion");
 
-        localityTextBox.sendKeys("Indiranagar, Bangalore");
+		// Picking up Check-In Date from date picker
+		appLib.selectDateFromDatePicker(Integer.parseInt(exceldata.get("CheckInDay")));
 
-        new Select(travellerSelection).selectByVisibleText("1 room, 2 adults");
-        searchButton.click();
+		// Picking up Check-Out Date from date picker
+		appLib.selectDateFromDatePicker(Integer.parseInt(exceldata.get("CheckOutDay")));
 
-        driver.quit();
+		// Picking Traveller's/Guest information
+		new Select(hotelsScreen.travellerSelection).selectByVisibleText(exceldata.get("TravellersInformation"));
 
-    }
+		// Clicking on Search button
+		appLib.clickElement(hotelsScreen.btnSearch, "Click Search button");
 
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
-    }
+		// Verify Search Summary is displayed
+		appLib.waitforElementVisible(hotelsScreen.txtSearchSummary);
+		Assert.assertTrue(appLib.isElementPresent(hotelsScreen.txtSearchSummary));
+
+	}
 
 }
