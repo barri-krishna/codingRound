@@ -3,14 +3,17 @@ package utils;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import com.sun.javafx.PlatformUtil;
 
 /**
@@ -81,11 +84,57 @@ public class CommonLibrary {
 		}
 	}
 
-	public void waitForElement(By byLocater) {
-		WebDriverWait wait = new WebDriverWait(driver, AppConstants.DRIVER_WAIT);
-		wait.until(ExpectedConditions.presenceOfElementLocated(byLocater));
-		wait.pollingEvery(AppConstants.POLLING_TIME, TimeUnit.SECONDS);
-		wait.ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
+	public void waitforElementVisible(final WebElement webelement) {
+		try {
+			WebDriverWait wait = new WebDriverWait(getDriver(), AppConstants.DRIVER_WAIT);
+			wait.until(ExpectedConditions.visibilityOf(webelement));
+			wait.pollingEvery(1, TimeUnit.SECONDS);
+			wait.ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
+//			logger.log("Found element in DOM...");
+		} catch (TimeoutException e) {
+			// LOGGER.error("Exception in fluentWait()" + e);
+			// rep.report("Error", Status.FAIL, "Element locator '" +
+			// locator.toString()
+			// + "' did not match any elements after " + time + " seconds.",
+			// Screenshot.TRUE);
+		} catch (Exception e) {
+			// LOGGER.error("Exception in fluentWait()" + e);
+			// rep.reportinCatch(e);
+		}
+	}
+
+	public void clickElement(WebElement webelement, String sReportText) {
+		try {
+			
+			waitforElementVisible(webelement);
+			new Actions(getDriver()).moveToElement(webelement).perform();
+			webelement.click();
+			// rep.report(sReportText, Status.PASS, " is clicked",
+			// Screenshot.FALSE);
+		} catch (Exception e) {
+			// LOGGER.error("Exception in clickElement()" + e);
+			// rep.reportinCatch(e);
+			System.out.println(e.toString());
+		}
+	}
+
+	public void setValue(WebElement webelement, String sValue) {
+		try {
+			waitforElementVisible(webelement);
+			webelement.click();
+			String elementValue = webelement.getAttribute("value");
+			if (!elementValue.isEmpty() && elementValue != null) {
+				webelement.clear();
+			}
+			webelement.sendKeys(sValue);
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+	}
+	
+	
+	public boolean isElementPresent(WebElement element) {
+		return element.isDisplayed();
 	}
 
 }
