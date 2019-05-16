@@ -2,12 +2,9 @@ package utils;
 
 import java.util.Map;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
-
 
 import views.HomeScreen;
 import views.HotelsScreen;
@@ -19,7 +16,11 @@ public class Template {
 	protected HotelsScreen hotelsScreen;
 	protected LoginScreen loginScreen;
 	protected Map<String, String> exceldata;
+	protected Logger logger;
 
+	/**
+	 * Initializing browser
+	 */
 	@BeforeTest
 	public void setBaseURL() {
 		appLib = new ApplicationLibrary();
@@ -27,13 +28,16 @@ public class Template {
 		exceldata = ExcelDataHandler.getTestData(this.getClass().getSimpleName());
 		appLib.invokeBrowser(AppConstants.CHROME);
 		appLib.getDriver().get(AppConstants.URL);
-		final Logger LOGGER = Logger.getLogger(this.getClass().getSimpleName());
-//		PropertyConfigurator.configure(AppConstants.PARENTFOLDER_PATH+AppConstants.LOG4J_PROPERTIES);
-		LOGGER.info("Log4j is intialized");
+		logger = Logger.getLogger(this.getClass().getSimpleName());
+		logger.info("Log4j is intialized");
 	}
 
+	/**
+	 * Driver Quit
+	 */
 	@AfterTest
 	public void closingBrowserWindow() {
 		appLib.getDriver().quit();
+		logger.info("Driver closed successfully");
 	}
 }

@@ -28,6 +28,8 @@ public class AppConstants {
 	
 	public final static int DRIVER_WAIT = 20;
 	
+	public final static int SLEEP_MS = 500;
+	
 	
 	
 }
