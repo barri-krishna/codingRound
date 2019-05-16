@@ -1,35 +1,19 @@
 package specs;
 
-import java.util.Map;
-
 import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import utils.AppConstants;
-import utils.ApplicationLibrary;
-import utils.ExcelDataHandler;
+import utils.Template;
 import views.HomeScreen;
 
-public class FlightBookingTest {
-
-	protected ApplicationLibrary appLib;
-	protected HomeScreen homeScreen;
-	protected Map<String, String> exceldata;
-
-	@BeforeTest
-	public void setBaseURL() {
-		appLib = new ApplicationLibrary();
-		exceldata = ExcelDataHandler.getTestData(this.getClass().getSimpleName());
-		appLib.invokeBrowser(AppConstants.CHROME);
-		appLib.getDriver().get(AppConstants.URL);
-	}
+public class FlightBookingTest extends Template {
 
 	@Test
 	public void testThatResultsAppearForAOneWayJourney() {
 
 		// Initializing Home Screen Page Objects
+		// logger.info("Initializing Home Screen Page Objects");
 		homeScreen = PageFactory.initElements(appLib.getDriver(), HomeScreen.class);
 
 		// Selecting One way trip
@@ -43,7 +27,7 @@ public class FlightBookingTest {
 
 		// Entering To location
 		appLib.setValue(homeScreen.ddlTo, exceldata.get("To"));
-		
+
 		// Picking first value from suggestions
 		appLib.clickElement(homeScreen.listOfToSuggestions, "Picking first TO Suggestions");
 
@@ -56,7 +40,7 @@ public class FlightBookingTest {
 		// Verify Search Summary is displayed
 		appLib.waitforElementVisible(homeScreen.txtSearchSummary);
 		Assert.assertTrue(appLib.isElementPresent(homeScreen.txtSearchSummary));
-		
+
 		appLib.getDriver().quit();
 
 	}

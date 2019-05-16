@@ -1,31 +1,15 @@
 package specs;
 
-import java.util.Map;
-
+import org.apache.log4j.Logger;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
-import utils.AppConstants;
-import utils.ApplicationLibrary;
-import utils.ExcelDataHandler;
+import utils.Template;
 import views.HotelsScreen;
 
-public class HotelBookingTest {
-
-	protected ApplicationLibrary appLib;
-	protected HotelsScreen hotelsScreen;
-	protected Map<String, String> exceldata;
-
-	@BeforeTest
-	public void setBaseURL() {
-		appLib = new ApplicationLibrary();
-		exceldata = ExcelDataHandler.getTestData(this.getClass().getSimpleName());
-		appLib.invokeBrowser(AppConstants.CHROME);
-		appLib.getDriver().get(AppConstants.URL);
-	}
+public class HotelBookingTest extends Template{
 
 	@Test
 	public void shouldBeAbleToSearchForHotels() {

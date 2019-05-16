@@ -22,6 +22,8 @@ public class AppConstants {
 	
 	public final static String EXCEL_PATH= "\\src\\main\\resources\\TestData.xlsx";
 	
+	public final static String LOG4J_PROPERTIES = "\\src\\main\\resources\\log4j.properties";
+	
 	public final static int POLLING_TIME = 2;
 	
 	public final static int DRIVER_WAIT = 20;
